@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz Duo — викторина по темам</title>
+  <meta name="description" content="Квиз-викторина: спорт, автомобили, видеоигры и другие темы. Уровни на 10, 15, 25 и 50 вопросов." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>" />
+</head>
+<body>
+
+  <!-- Фоновые «кляксы» -->
+  <div class="blob blob-a"></div>
+  <div class="blob blob-b"></div>
+  <div class="blob blob-c"></div>
+
+  <!-- ===== ШАПКА ===== -->
+  <header class="topbar">
+    <button class="brand" id="btnHome" title="На главную (Esc)">
+      <span class="brand-logo">🧠</span>
+      <span class="brand-name">Quiz<span class="brand-accent">Duo</span></span>
+    </button>
+
+    <div class="topbar-right">
+      <button class="icon-btn" id="btnSound" title="Звук вкл/выкл (S)" aria-label="Переключить звук">🔊</button>
+      <button class="icon-btn" id="btnTheme" title="Тема дня/ночи (T)" aria-label="Переключить тему">🌙</button>
+      <button class="icon-btn" id="btnHelp" title="Как играть / горячие клавиши (?)" aria-label="Помощь">❓</button>
+    </div>
+  </header>
+
+  <main id="app">
+
+    <!-- ================= ЭКРАН 1: ГЛАВНАЯ ================= -->
+    <section class="screen active" id="screen-home">
+      <div class="hero container">
+        <h1 class="hero-title">Проверь свою <span class="grad-text">эрудицию</span> 🎯</h1>
+        <p class="hero-sub">Выбери темы, уровень сложности — и вперёд! Более <b id="statQuestions">0</b> вопросов по <b id="statTopics">0</b> темам.</p>
+
+        <div class="hero-actions">
+          <button class="btn btn-primary btn-xl" id="btnStartFlow">🚀 Начать квиз</button>
+          <button class="btn btn-ghost btn-xl" id="btnRandom">🎲 Случайный микс</button>
+        </div>
+
+        <div class="home-stats" id="homeStats"><!-- заполняет JS --></div>
+
+        <div class="recent-wrap">
+          <h2 class="section-title">🏆 Последние результаты</h2>
+          <div class="recent-list" id="recentList"><!-- заполняет JS --></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ЭКРАН 2: ВЫБОР ТЕМ ================= -->
+    <section class="screen" id="screen-topics">
+      <div class="container">
+        <div class="screen-head">
+          <button class="btn btn-ghost btn-sm" data-back="home">← Назад</button>
+          <h2 class="screen-title">Выбери темы <span class="muted">(можно несколько)</span></h2>
+          <div class="searchbox">
+            <input type="search" id="topicSearch" placeholder="🔎 Поиск темы…" autocomplete="off" />
+          </div>
+        </div>
+
+        <div class="chips-row" id="quickPicks"><!-- быстрые подборки --></div>
+
+        <div class="topics-grid" id="topicsGrid"><!-- карточки тем --></div>
+
+        <div class="sticky-bar">
+          <div class="sticky-info" id="topicsSummary">Выбрано тем: 0 · подкатегорий: 0</div>
+          <div class="sticky-actions">
+            <button class="btn btn-secondary" id="btnPickAllTopics">✅ Все темы</button>
+            <button class="btn btn-ghost" id="btnClearTopics">✕ Сбросить</button>
+            <button class="btn btn-primary" id="btnToCats" disabled>Далее: подкатегории →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ЭКРАН 3: ПОДКАТЕГОРИИ ================= -->
+    <section class="screen" id="screen-cats">
+      <div class="container">
+        <div class="screen-head">
+          <button class="btn btn-ghost btn-sm" data-back="topics">← Назад</button>
+          <h2 class="screen-title">Уточни подкатегории <span class="muted">(или играй со всеми)</span></h2>
+        </div>
+        <div class="cats-grid" id="catsGrid"></div>
+        <div class="sticky-bar">
+          <div class="sticky-info" id="catsSummary"></div>
+          <div class="sticky-actions">
+            <button class="btn btn-ghost" id="btnCatsAll">✅ Все подкатегории</button>
+            <button class="btn btn-primary" id="btnToSettings">Далее: уровень →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ЭКРАН 4: НАСТРОЙКИ ================= -->
+    <section class="screen" id="screen-settings">
+      <div class="container narrow">
+        <div class="screen-head">
+          <button class="btn btn-ghost btn-sm" data-back="topics">← Назад</button>
+          <h2 class="screen-title">Настройки раунда ⚙️</h2>
+        </div>
+
+        <div class="panel">
+          <h3 class="panel-title">📏 Уровень — количество вопросов</h3>
+          <div class="level-grid" id="levelGrid">
+            <button class="level-card" data-count="10"><span class="lvl-num">10</span><span class="lvl-name">Лёгкий</span><span class="lvl-tag">разминка</span></button>
+            <button class="level-card selected" data-count="15"><span class="lvl-num">15</span><span class="lvl-name">Стандарт</span><span class="lvl-tag">оптимально</span></button>
+            <button class="level-card" data-count="25"><span class="lvl-num">25</span><span class="lvl-name">Сложный</span><span class="lvl-tag">для знатоков</span></button>
+            <button class="level-card" data-count="50"><span class="lvl-num">50</span><span class="lvl-name">Марафон</span><span class="lvl-tag">максимум</span></button>
+          </div>
+          <p class="hint" id="poolHint"></p>
+        </div>
+
+        <div class="panel">
+          <h3 class="panel-title">⏱️ Таймер на вопрос</h3>
+          <div class="seg" id="timerSeg">
+            <button class="seg-btn selected" data-time="0">Выкл</button>
+            <button class="seg-btn" data-time="15">15 c</button>
+            <button class="seg-btn" data-time="20">20 c</button>
+            <button class="seg-btn" data-time="30">30 c</button>
+            <button class="seg-btn" data-time="45">45 c</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3 class="panel-title">❤️ Жизни</h3>
+          <div class="seg" id="livesSeg">
+            <button class="seg-btn" data-lives="0">∞ Без жизней</button>
+            <button class="seg-btn selected" data-lives="3">3 ❤️</button>
+            <button class="seg-btn" data-lives="5">5 💖</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3 class="panel-title">✨ Режимы и фишки</h3>
+          <label class="switch-row"><input type="checkbox" id="optHardcore" /><span class="switch"></span><span>🥶 Хардкор — без подсказок, очки тают со временем</span></label>
+          <label class="switch-row"><input type="checkbox" id="optCombo" checked /><span class="switch"></span><span>🔥 Комбо — множитель за серию верных ответов</span></label>
+          <label class="switch-row"><input type="checkbox" id="optFacts" checked /><span class="switch"></span><span>💡 Интересные факты после ответа</span></label>
+          <label class="switch-row"><input type="checkbox" id="optConfetti" checked /><span class="switch"></span><span>🎉 Конфетти при победе</span></label>
+        </div>
+
+        <div class="panel panel-jokers">
+          <h3 class="panel-title">🃏 Подсказки (доступны во время игры)</h3>
+          <div class="joker-preview">
+            <span class="joker-chip" title="50/50 — убрать два неверных варианта">✂️ 50/50</span>
+            <span class="joker-chip" title="Плюс ко времени — +10 секунд">⏳ +10 сек</span>
+            <span class="joker-chip" title="Зрительский зал — покажет вероятный ответ">👥 Зал</span>
+          </div>
+        </div>
+
+        <div class="start-block">
+          <div class="recap" id="roundRecap"></div>
+          <button class="btn btn-primary btn-xl" id="btnStartQuiz">▶ Играть!</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ЭКРАН 5: ИГРА ================= -->
+    <section class="screen" id="screen-quiz">
+      <div class="container quiz-wrap">
+        <div class="quiz-top">
+          <button class="icon-btn" id="btnQuit" title="Выйти из квиза (Esc)">✖</button>
+          <div class="progress-zone">
+            <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="progress-meta"><span id="qCounter">1 / 15</span><span id="modeTag"></span></div>
+          </div>
+          <div class="quiz-score">
+            <span id="livesRow" class="lives"></span>
+            <span class="score-pill">⭐ <b id="scoreVal">0</b></span>
+            <span class="streak-pill" id="streakPill" title="Серия верных ответов">🔥 <b id="streakVal">0</b></span>
+          </div>
+        </div>
+
+        <div class="timer-ring-zone" id="timerZone" hidden>
+          <svg class="timer-ring" viewBox="0 0 44 44">
+            <circle class="tr-bg" cx="22" cy="22" r="19"></circle>
+            <circle class="tr-fg" id="timerCircle" cx="22" cy="22" r="19"></circle>
+          </svg>
+          <span class="timer-num" id="timerNum">20</span>
+        </div>
+
+        <div class="question-card" id="questionCard">
+          <div class="q-cat" id="qCat">🏆 Футбол</div>
+          <h2 class="q-text" id="qText">Вопрос?</h2>
+          <div class="answers" id="answers"></div>
+          <div class="fact-box" id="factBox" hidden></div>
+        </div>
+
+        <div class="quiz-bottom">
+          <div class="jokers" id="jokers">
+            <button class="joker-btn" data-joker="fifty" title="50/50 [1]">✂️<span class="joker-key">1</span></button>
+            <button class="joker-btn" data-joker="time" title="+10 секунд [2]">⏳<span class="joker-key">2</span></button>
+            <button class="joker-btn" data-joker="audience" title="Голосование зала [3]">👥<span class="joker-key">3</span></button>
+          </div>
+          <button class="btn btn-primary next-btn" id="btnNext" hidden>Дальше →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= ЭКРАН 6: РЕЗУЛЬТАТЫ ================= -->
+    <section class="screen" id="screen-result">
+      <div class="container narrow result-wrap">
+        <div class="result-medal" id="resultMedal">🏅</div>
+        <h2 class="result-title" id="resultTitle">Отличный результат!</h2>
+        <p class="result-sub" id="resultSub"></p>
+
+        <div class="ring-zone">
+          <svg class="result-ring" viewBox="0 0 120 120">
+            <circle class="rr-bg" cx="60" cy="60" r="52"></circle>
+            <circle class="rr-fg" id="resultRing" cx="60" cy="60" r="52"></circle>
+          </svg>
+          <div class="ring-center"><span id="resultPercent">0%</span><small id="resultCorrect">0 / 0</small></div>
+        </div>
+
+        <div class="result-stats" id="resultStats"></div>
+
+        <details class="review" id="reviewWrap">
+          <summary>📋 Разбор ответов</summary>
+          <div class="review-list" id="reviewList"></div>
+        </details>
+
+        <div class="result-actions">
+          <button class="btn btn-primary" id="btnAgain">🔄 Играть ещё раз</button>
+          <button class="btn btn-secondary" id="btnSameSetup">↻ Тот же набор</button>
+          <button class="btn btn-ghost" id="btnNewQuiz">🧭 Выбрать темы</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Модалка помощи -->
+  <div class="modal-overlay" id="helpModal" hidden>
+    <div class="modal">
+      <div class="modal-head"><h3>Как играть 🎮</h3><button class="icon-btn" id="btnCloseHelp">✖</button></div>
+      <ul class="help-list">
+        <li>Выбирайте одну или несколько тем — можно сразу миксовать спорт с видеоиграми.</li>
+        <li>Уровень определяет число вопросов: <b>10 / 15 / 25 / 50</b>.</li>
+        <li>Верный ответ = очки. Быстрый ответ даёт бонус, серия ответов — комбо-множитель 🔥.</li>
+        <li>Подсказки: ✂️ 50/50, ⏳ +10 сек, 👥 «голосование зала» — по одной за игру.</li>
+        <li>После ответа показываем правильный вариант и интересный факт 💡.</li>
+      </ul>
+      <h4>Горячие клавиши</h4>
+      <div class="keys-grid">
+        <span><kbd>1</kbd>–<kbd>4</kbd> ответить</span>
+        <span><kbd>Enter</kbd>/<kbd>Space</kbd> дальше</span>
+        <span><kbd>Esc</kbd> назад/выйти</span>
+        <span><kbd>T</kbd> тема оформления</span>
+        <span><kbd>S</kbd> звук</span>
+        <span><kbd>?</kbd> эта справка</span>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="confettiCanvas"></canvas>
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
